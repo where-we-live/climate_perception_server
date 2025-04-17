@@ -1,0 +1,12 @@
+name: climate_perception_server
+title: climate_perception_server
+username: sironos
+account: sironos
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 14501269
+bundleId: 10100622
+url: https://haclab.shinyapps.io/climate_perception_server/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
