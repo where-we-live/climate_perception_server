@@ -104,10 +104,6 @@ server <- function(input, output, session) {
     plot2_triggered(FALSE)
   })
   
-  observeEvent(input$var_input2, {
-    plot2_triggered(FALSE)
-  })
-  
   observeEvent(input$run1, {
     plot1_triggered(TRUE)
     shinyjs::disable("run1")
@@ -191,41 +187,58 @@ server <- function(input, output, session) {
       })
     })
     
-    output$plot2_ui <- renderUI({
-      if (plot2_triggered()) {
-        withSpinner(plotOutput("plot2"))
-      } else {
-        NULL
-      }
-    })
-    
-    output$variation_plots_ui <- renderUI({
+    output$download2_ui <- renderUI({
       req(plot2_triggered())
-      req(input$state_input2, input$var_input2)
-      plot_output_list <- lapply(input$state_input2, function(state) {
-        plotname <- paste0("variation_plot_", gsub(" ", "_", state))
-        downloadname <- paste0("download_variation_", gsub(" ", "_", state))
-        tagList(
-          h4(paste("Histogram for", state)),
-          fluidRow(
-            column(12, plotOutput(plotname)),
-            column(12, downloadButton(downloadname, paste("Download Histogram -", state)))
-          )
-        )
-      })
-      do.call(tagList, plot_output_list)
+      downloadButton("download_plot2", "Download Boxplot")
     })
-    
+  })
+  
+  output$plot2_ui <- renderUI({
+    if (plot2_triggered()) {
+      withSpinner(plotOutput("plot2"))
+    } else {
+      NULL
+    }
+  })
+  
+  output$download_plot2 <- downloadHandler(
+    filename = function() {
+      paste0("county_boxplot_", Sys.Date(), ".png")
+    },
+    contentType = "image/png",
+    content = function(file) {
+      plot <- perception_analysis_multi_state_boxplot(input$var_input2, input$state_input2)
+      png(file, width = 2400, height = 1400, res = 300)
+      print(plot)
+      dev.off()
+    }
+  )
+  
+  output$variation_plots_ui <- renderUI({
+    req(plot2_triggered())
+    req(input$state_input2, input$var_input2)
+    plot_output_list <- lapply(input$state_input2, function(state) {
+      plotname <- paste0("variation_plot_", gsub(" ", "_", state))
+      downloadname <- paste0("download_variation_", gsub(" ", "_", state))
+      tagList(
+        h4(paste("Histogram for", state)),
+        fluidRow(
+          column(12, plotOutput(plotname)),
+          column(12, downloadButton(downloadname, paste("Download Histogram -", state)))
+        )
+      )
+    })
+    do.call(tagList, plot_output_list)
+  })
+  
+  observe({
+    req(plot2_triggered())
     lapply(input$state_input2, function(state) {
       plotname <- paste0("variation_plot_", gsub(" ", "_", state))
       output[[plotname]] <- renderPlot({
-        req(plot2_triggered())
-        isolate({
-          perception_analysis_annual_variation(input$var_input2, state)
-        })
+        perception_analysis_annual_variation(input$var_input2, state)
       })
     })
-    
     lapply(input$state_input2, function(state) {
       downloadname <- paste0("download_variation_", gsub(" ", "_", state))
       output[[downloadname]] <- downloadHandler(
@@ -246,10 +259,6 @@ server <- function(input, output, session) {
 
 # ---- Run the App ----
 shinyApp(ui = ui, server = server)
-
-
-
-
 
 
 
