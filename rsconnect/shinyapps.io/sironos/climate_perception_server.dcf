@@ -5,7 +5,7 @@ account: sironos
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 14501269
-bundleId: 10165708
+bundleId: 10210984
 url: https://haclab.shinyapps.io/climate_perception_server/
 version: 1
 asMultiple: FALSE
